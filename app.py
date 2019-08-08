@@ -137,19 +137,4 @@ def download_df(data_df):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_hot_reload=True)
-# app_key = 'PI4JyCeO0tMXzsryWIQxqZgDa'
-# app_secret = 'cdMbUH2V55EbMwaBZ2KQUQJm6LLBTb3OMZCwJ5SxuqxYV78Own'
-# oauth_token = '12042062-ogxutXTaX9iWUDKZgSPrr6SQpXajK4hE7MZfBj0Nm'
-# oauth_token_secret = '8vDVxQZcLSkMz4wMaKMN7aua2QOf3Ocfd7RQmffnZORVZ'
-#
-# app_key='A6oyzoUGWXBEJfAgJzuM0y5uF'
-# app_secret='7EMBDSADY9tNyJwyG1119wETCNJC21EZWUO55wgZeH5YPJzUbl'
-# oauth_token='991138349300756480-lTcG9rc16gYRrcctJzwu9kJ72q4c0ka'
-# oauth_token_secret='uGCFqRayMiKuuitM0pQruM42yQA6GACzYqXud6F81TnIj'
-# auth_params = {
-#     'app_key': app_key,
-#     'app_secret': app_secret,
-#     'oauth_token': oauth_token,
-#     'oauth_token_secret': oauth_token_secret,
-# }
+    app.run_server()
