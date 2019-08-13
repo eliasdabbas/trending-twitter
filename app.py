@@ -8,6 +8,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash_table import DataTable
+from dash_table.FormatTemplate import Format
 import pandas as pd
 import advertools as adv
 
@@ -71,24 +72,15 @@ app.layout = html.Div([
     html.Div([
         DataTable(id='table',
                   style_cell={'font-family': 'Palatino'},
-                  columns=[{'name': i, 'id': i}
-                            for i in TABLE_COLS],
-                  # style_cell_conditional=[
-                  #     {
-                  #         'if': {'row_index': 'odd'},
-                  #         'backgroundColor': '#eeeeee'
-                  #     },
-                  # ] + [
-                  #      {
-                  #           'if': {'column_id': c},
-                  #           'textAlign': 'left'
-                  #       } for c in ['Name', 'Location',
-                  #                   'Country',  'Place Type']],
+                  columns=[{'name': i, 'id': i,
+                            'type': 'numeric' if i == 'Tweet Volume' else None,
+                            'format': Format(group=',')
+                            if i == 'Tweet Volume' else None}
+                           for i in TABLE_COLS],
+                  sort_action='native',
                   data=pd.DataFrame({
                       k: ['' for i in range(10)] for k in TABLE_COLS
                   }).to_dict('rows'),
-                  # filtering=True,
-                  # sorting=True
                   ),
         
         html.A('@eliasdabbas',
