@@ -71,19 +71,21 @@ app.layout = dbc.Container([
         ], style={'position': 'relative', 'zIndex': 999}),
     dbc.Container([
         html.Br(),
-        DataTable(id='table',
-                  style_cell={'font-family': 'Source Sans Pro', 'minWidth': 100},
-                  columns=[{'name': i, 'id': i,
-                            'type': 'numeric' if i == 'Tweet Volume' else None,
-                            'format': Format(group=',')
-                            if i == 'Tweet Volume' else None}
-                           for i in TABLE_COLS],
-                  sort_action='native',
-                  fixed_rows={'headers': True, 'data': 0},
-                  data=pd.DataFrame({
-                      k: ['' for i in range(10)] for k in TABLE_COLS
-                  }).to_dict('rows'),
-                  ),
+        dcc.Loading([
+            DataTable(id='table',
+                      style_cell={'font-family': 'Source Sans Pro', 'minWidth': 100},
+                      columns=[{'name': i, 'id': i,
+                                'type': 'numeric' if i == 'Tweet Volume' else None,
+                                'format': Format(group=',')
+                                if i == 'Tweet Volume' else None}
+                               for i in TABLE_COLS],
+                      sort_action='native',
+                      fixed_rows={'headers': True, 'data': 0},
+                      data=pd.DataFrame({
+                          k: ['' for i in range(10)] for k in TABLE_COLS
+                      }).to_dict('rows'),
+                      ),
+        ]),
         ], style={'width': '95%', 'margin-left': '2.5%',
                   'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'}),
     html.Br(), html.Br(), html.Br(), html.Br(), html.Br()
