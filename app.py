@@ -55,7 +55,6 @@ app.layout = dbc.Container([
                        n_clicks=0, color='dark'),
         ]),
         dbc.Col([
-            # html.Br(),
             html.A('Download Table',
             id='download_link',
             download="rawdata.csv",
@@ -84,9 +83,9 @@ app.layout = dbc.Container([
         ], style={'width': '95%', 'margin-left': '2.5%',
                   'background-color': '#eeeeee',
                   'font-family': 'Source Sans Pro'},
-    fluid=True),
-    html.Br(), html.Br(), html.Br(), html.Br(), html.Br()
-], style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'},
+        fluid=True),
+] + [html.Br() for i in range(8)],
+    style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'},
     fluid=True)
 
 
