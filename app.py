@@ -4,6 +4,7 @@ import logging
 from six.moves.urllib.parse import quote
 import dash
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -36,67 +37,53 @@ app = dash.Dash(__name__)
 
 server = app.server
 
-app.layout = html.Div([
-    html.Br(), html.Br(), html.Br(), 
-    html.H1('#Trending on Twitter Now', style={'text-align': 'center'}),
-    html.H3('Select one or more locations, and optionally '
-            'change the number of rows to display per location',
-            style={'margin-left': '10%'}),
-    html.Div([
-        html.Div([
-            dcc.Dropdown(id='locations',
-                         placeholder='Select location(s)',
-                         multi=True,
-                         options=[{'label': loc, 'value': i}
-                                   for i, loc in enumerate(locations)]),            
-        ], style={'width': '45%', 'display': 'inline-block', 'margin-left': '10%'}),
-        html.Div([
+
+app.layout = dbc.Container([
+    html.Br(),
+    dbc.Row([
+
+        dbc.Col([
+                dcc.Dropdown(id='locations',
+                             placeholder='Select location(s)',
+                             multi=True,
+                             options=[{'label': loc, 'value': i}
+                                      for i, loc in enumerate(locations)]),
+            ], lg=7),
+        dbc.Col([
             dcc.Dropdown(id='top_n',
                          placeholder='How many values to display per location:',
                          options=[{'label': n, 'value': n}
-                                              for n in range(1, 51)], value=20),
-        ], style={'width': '25%', 
-                  'display': 'inline-block',
-                  }),
-        html.Div([html.H1('       '),
-                  html.A('Download Table',
-                  id='download_link',
-                  download="rawdata.csv",
-                  href="",
-                  target="_blank",
-                  n_clicks=0), html.Br(), html.Br(),
-        ], style={'width': '10%', 
-                  'display': 'inline-block', 'text-align': 'right'
-                  }),
-    ]),
-    html.Div([
+                                  for n in range(1, 51)], value=20),
+            ], lg=3),
+        dbc.Col([
+            html.H1('       '),
+            html.A('Download Table',
+            id='download_link',
+            download="rawdata.csv",
+            href="",
+            target="_blank",
+            n_clicks=0), html.Br(), html.Br(),
+            ], lg=1)
+        ], style={'position': 'relative', 'zIndex': 999}),
+    dbc.Container([
+        html.Br(),
         DataTable(id='table',
-                  style_cell={'font-family': 'Palatino'},
+                  style_cell={'font-family': 'Source Sans Pro', 'minWidth': 100},
                   columns=[{'name': i, 'id': i,
                             'type': 'numeric' if i == 'Tweet Volume' else None,
                             'format': Format(group=',')
                             if i == 'Tweet Volume' else None}
                            for i in TABLE_COLS],
                   sort_action='native',
+                  fixed_rows={'headers': True, 'data': 0},
                   data=pd.DataFrame({
                       k: ['' for i in range(10)] for k in TABLE_COLS
                   }).to_dict('rows'),
                   ),
-        
-        html.A('@eliasdabbas',
-               href='https://www.twitter.com/eliasdabbas'), 
-        html.P(),
-        html.Content('Data: Twitter API  '),
-        html.Br(),
-        html.Content('  Code: '),
-        html.A('github.com/eliasdabbas/trending-twitter', 
-               href='https://github.com/eliasdabbas/trending-twitter'), 
-        html.Br(), html.Br(),
-
         ], style={'width': '95%', 'margin-left': '2.5%',
-                  'background-color': '#eeeeee', 'font-family': 'Palatino'}),
-    html.Br(), html.Br(), html.Br(), html.Br(), html.Br(), html.Br(), 
-], style={'background-color': '#eeeeee', 'font-family': 'Palatino'})    
+                  'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'}),
+    html.Br(), html.Br(), html.Br(), html.Br(), html.Br()
+], style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'})
 
 
 @app.callback(Output('table', 'data'),
