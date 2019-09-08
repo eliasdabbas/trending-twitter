@@ -6,7 +6,7 @@ import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_table import DataTable
 from dash_table.FormatTemplate import Format
@@ -40,6 +40,7 @@ server = app.server
 
 app.layout = dbc.Container([
     html.Br(),
+    dcc.Location(id='url', refresh=False),
     dbc.Row([
 
         dbc.Col([
@@ -55,6 +56,9 @@ app.layout = dbc.Container([
                          options=[{'label': n, 'value': n}
                                   for n in range(1, 51)], value=20),
             ], lg=3),
+        html.Br(),
+        dbc.Button(id='button', children='Submit', size='lg', n_clicks=0,
+                   style={'fontSize': 20}),
         dbc.Col([
             html.H1('       '),
             html.A('Download Table',
@@ -86,10 +90,12 @@ app.layout = dbc.Container([
 ], style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'})
 
 
-@app.callback(Output('table', 'data'),
-             [Input('locations', 'value'), Input('top_n', 'value')])
-def set_table_data(locations, top_n):
-    if locations is None:
+@app.callback([Output('table', 'data'),
+               Output('url', 'search')],
+              [Input('button', 'n_clicks')],
+              [State('locations', 'value'), State('top_n', 'value')])
+def set_table_data(n_clicks, locations, top_n):
+    if not n_clicks:
         raise PreventUpdate
     log_loc = trend_locs['name'][locations]
     logging.info(msg=list(log_loc) + [top_n])
@@ -99,7 +105,8 @@ def set_table_data(locations, top_n):
         final_df = df.groupby('woeid').head(top_n)
         final_df = final_df.drop(['promoted_content', 'woeid', 'parentid'], axis=1)
         final_df.columns = [x.title() for x in final_df.columns.str.replace('_', ' ')]
-        return final_df.to_dict('rows')
+        url_search = '?q=' + '+'.join(log_loc) + '&num=' + str(top_n)
+        return final_df.to_dict('rows'), url_search
     except Exception as e:
         return pd.DataFrame({'Name': ['Too many requests please '
                                       'try again in 15 minutes.']},
