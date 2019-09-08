@@ -30,10 +30,10 @@ adv.twitter.set_auth_params(**auth_params)
 trend_locs = adv.twitter.get_available_trends() 
 locations = trend_locs['name'] + ', ' + trend_locs['country']
 
-TABLE_COLS = ['Name', 'Location', 'Tweet Volume', 
+TABLE_COLS = ['Topic', 'Location', 'Tweet Volume',
               'Local Rank', 'Country', 'Time', 'Place Type']
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
@@ -42,32 +42,27 @@ app.layout = dbc.Container([
     html.Br(),
     dcc.Location(id='url', refresh=False),
     dbc.Row([
-
+        dbc.Col(lg=1),
         dbc.Col([
                 dcc.Dropdown(id='locations',
                              placeholder='Select location(s)',
                              multi=True,
                              options=[{'label': loc, 'value': i}
                                       for i, loc in enumerate(locations)]),
-            ], lg=7),
+            ], lg=5),
         dbc.Col([
-            dcc.Dropdown(id='top_n',
-                         placeholder='How many values to display per location:',
-                         options=[{'label': n, 'value': n}
-                                  for n in range(1, 51)], value=20),
-            ], lg=3),
-        html.Br(),
-        dbc.Button(id='button', children='Submit', size='lg', n_clicks=0,
-                   style={'fontSize': 20}),
+            dbc.Button(id='button', children='Submit',
+                       n_clicks=0, color='dark'),
+        ]),
         dbc.Col([
-            html.H1('       '),
+            # html.Br(),
             html.A('Download Table',
             id='download_link',
             download="rawdata.csv",
             href="",
             target="_blank",
-            n_clicks=0), html.Br(), html.Br(),
-            ], lg=1)
+            n_clicks=0),
+            ], lg=2, align='left')
         ], style={'position': 'relative', 'zIndex': 999}),
     dbc.Container([
         html.Br(),
@@ -87,32 +82,35 @@ app.layout = dbc.Container([
                       ),
         ]),
         ], style={'width': '95%', 'margin-left': '2.5%',
-                  'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'}),
+                  'background-color': '#eeeeee',
+                  'font-family': 'Source Sans Pro'},
+    fluid=True),
     html.Br(), html.Br(), html.Br(), html.Br(), html.Br()
-], style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'})
+], style={'background-color': '#eeeeee', 'font-family': 'Source Sans Pro'},
+    fluid=True)
 
 
 @app.callback([Output('table', 'data'),
                Output('url', 'search')],
               [Input('button', 'n_clicks')],
-              [State('locations', 'value'), State('top_n', 'value')])
-def set_table_data(n_clicks, locations, top_n):
+              [State('locations', 'value')])
+def set_table_data(n_clicks, locations):
     if not n_clicks:
         raise PreventUpdate
     log_loc = trend_locs['name'][locations]
-    logging.info(msg=list(log_loc) + [top_n])
+    logging.info(msg=list(log_loc))
     try:
         woeid = trend_locs['woeid'][locations]
         df = adv.twitter.get_place_trends(woeid)
-        final_df = df.groupby('woeid').head(top_n)
-        final_df = final_df.drop(['promoted_content', 'woeid', 'parentid'], axis=1)
+
+        final_df = df.drop(['promoted_content', 'woeid', 'parentid'], axis=1)
         final_df.columns = [x.title() for x in final_df.columns.str.replace('_', ' ')]
-        url_search = '?q=' + '+'.join(log_loc) + '&num=' + str(top_n)
+        url_search = '?q=' + '+'.join(log_loc)
         return final_df.to_dict('rows'), url_search
     except Exception as e:
         return pd.DataFrame({'Name': ['Too many requests please '
                                       'try again in 15 minutes.']},
-                            columns=final_df.columns).to_dict('rows')
+                            columns=df.columns).to_dict('rows')
 
 
 @app.callback(Output('download_link', 'href'),
@@ -125,4 +123,4 @@ def download_df(data_df):
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
