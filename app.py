@@ -104,6 +104,7 @@ def set_table_data(n_clicks, locations):
         df = adv.twitter.get_place_trends(woeid)
 
         final_df = df.drop(['promoted_content', 'woeid', 'parentid'], axis=1)
+        final_df = final_df.rename(columns={'name': 'Topic'})
         final_df.columns = [x.title() for x in final_df.columns.str.replace('_', ' ')]
         url_search = '?q=' + '+'.join(log_loc)
         return final_df.to_dict('rows'), url_search
