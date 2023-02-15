@@ -29,4 +29,4 @@ retrying==1.3.3
 six==1.12.0
 twython==3.7.0
 urllib3==1.26.5
-Werkzeug==0.15.5
+Werkzeug==2.2.3
